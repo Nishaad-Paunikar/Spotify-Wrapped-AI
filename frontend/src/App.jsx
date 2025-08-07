@@ -2,7 +2,7 @@ import './App.css';
 
 function App() {
   const handleLogin = () => {
-    window.location.href = 'http://localhost:5000/login'; // replace with backend URL if needed
+    window.location.href = 'https://accounts.spotify.com/authorize?client_id=91efe116441b4b5aaa21f8a8a590058d&response_type=code&redirect_uri=https://example.com/callback&scope=user-top-read%20user-read-recently-played'; // replace with backend URL if needed
   };
 
   return (
