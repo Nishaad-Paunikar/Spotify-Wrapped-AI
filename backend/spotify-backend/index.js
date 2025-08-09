@@ -5,6 +5,11 @@ const querystring = require('querystring');
 require('dotenv').config();
 const https = require('https');
 const fs = require('fs');
+const cors = require('cors');
+app.use(cors({
+  origin: 'http://localhost:5173', // your frontend URL
+  credentials: true
+}));
 
 
 const app = express();
@@ -30,60 +35,38 @@ app.get('/login', (req, res) => {
 });
 
 // Callback route
+```js
 app.get('/callback', async (req, res) => {
   const code = req.query.code || null;
+
   try {
     const response = await axios.post('https://accounts.spotify.com/api/token',
-      querystring.stringify({
-        grant_type: 'authorization_code',
-        code: code,
-        redirect_uri: REDIRECT_URI
+      new URLSearchParams({
+        code,
+        redirect_uri: process.env.REDIRECT_URI,
+        grant_type: 'authorization_code'
       }),
       {
         headers: {
-          'Authorization': 'Basic ' + Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'),
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': 'Basic ' + Buffer.from(
+            process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET
+          ).toString('base64')
         }
       }
     );
 
     const { access_token, refresh_token } = response.data;
-    res.redirect(`${FRONTEND_URI}/?access_token=${access_token}&refresh_token=${refresh_token}`);
-  } catch (err) {
-    console.error(err.response.data);
-    res.send('Error during authentication');
-  }
-});
 
-// Fetch Top Tracks
-app.get('/top-tracks', async (req, res) => {
-  const access_token = req.query.access_token;
-
-  try {
-    const response = await axios.get('https://api.spotify.com/v1/me/top/tracks', {
-      headers: { 'Authorization': 'Bearer ' + access_token }
-    });
-    res.json(response.data);
+    // Redirect tokens to frontend
+    res.redirect(`http://localhost:5173/callback?access_token=${access_token}&refresh_token=${refresh_token}`);
   } catch (err) {
     console.error(err.response?.data || err.message);
-    res.status(500).send('Error fetching top tracks');
+    res.status(500).send('Error during authentication');
   }
 });
+```
 
-// Fetch Top Artists
-app.get('/top-artists', async (req, res) => {
-  const access_token = req.query.access_token;
-
-  try {
-    const response = await axios.get('https://api.spotify.com/v1/me/top/artists', {
-      headers: { 'Authorization': 'Bearer ' + access_token }
-    });
-    res.json(response.data);
-  } catch (err) {
-    console.error(err.response?.data || err.message);
-    res.status(500).send('Error fetching top artists');
-  }
-});
 
 // Fetch Top Tracks
 app.get('/top-tracks', async (req, res) => {
