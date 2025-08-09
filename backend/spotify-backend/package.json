@@ -1,3 +1,8 @@
+"scripts": {
+  "start": "node index.js",
+  "dev": "nodemon index.js"
+}
+
 {
   "name": "spotify-backend",
   "version": "1.0.0",
