@@ -35,7 +35,7 @@ app.get('/login', (req, res) => {
 });
 
 // Callback route
-```js
+js
 app.get('/callback', async (req, res) => {
   const code = req.query.code || null;
 
@@ -65,7 +65,7 @@ app.get('/callback', async (req, res) => {
     res.status(500).send('Error during authentication');
   }
 });
-```
+
 
 
 // Fetch Top Tracks
